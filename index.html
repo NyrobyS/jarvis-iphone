@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="pt">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#090e16">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="JARVIS">
+  <link rel="manifest" href="manifest.webmanifest">
+  <title>J.A.R.V.I.S.</title>
+  <style>
+    :root{color-scheme:dark;--bg:#090e16;--panel:#111b28;--line:#23364a;--blue:#77cfff;--muted:#91a7bc;--white:#edf7ff}
+    *{box-sizing:border-box} body{margin:0;background:radial-gradient(ellipse at 50% 10%,#142b40 0,#090e16 54%);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:var(--white);min-height:100vh}
+    main{max-width:520px;margin:auto;padding:env(safe-area-inset-top) 20px calc(24px + env(safe-area-inset-bottom));min-height:100vh;display:flex;flex-direction:column}
+    header{display:flex;justify-content:space-between;align-items:center;padding:22px 0 12px;font-size:11px;letter-spacing:2px;color:var(--muted)}
+    .status{color:#7ce0b2;letter-spacing:1px}.hero{display:flex;flex-direction:column;align-items:center;text-align:center;padding:34px 0 26px}
+    .orb{width:174px;height:174px;border-radius:50%;display:grid;place-items:center;position:relative;margin-bottom:24px;background:radial-gradient(circle,#183e5b 0,#102438 43%,#0b1521 67%,transparent 70%);box-shadow:0 0 50px #1a8bc533,inset 0 0 25px #64caff22}
+    .orb:before,.orb:after{content:"";position:absolute;border:1px solid #69c9ff66;border-radius:50%;inset:8px;animation:pulse 4s ease-in-out infinite}
+    .orb:after{inset:20px;border-color:#69c9ff33;animation-delay:1s}
+    .core{width:68px;height:68px;border-radius:50%;border:1px solid #8cddff;background:radial-gradient(circle,#c4efff 0,#4db7ed 12%,#155079 48%,#0b1a29 70%);box-shadow:0 0 28px #54c8ff99}
+    @keyframes pulse{50%{transform:scale(1.07);opacity:.45}}
+    h1{font-size:28px;letter-spacing:6px;margin:0 0 7px;font-weight:500}.tag{font-size:10px;color:var(--blue);letter-spacing:2px}
+    .greeting{font-size:16px;margin-top:27px;color:#d9eaf6;min-height:24px}.sub{font-size:12px;color:var(--muted);margin-top:7px}
+    .panel{background:#101a27d9;border:1px solid var(--line);border-radius:18px;padding:16px;margin-top:14px}
+    .panel-title{font-size:11px;letter-spacing:1.5px;color:var(--muted);margin-bottom:12px}
+    .controls{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+    button,select,input{font:inherit} button{border:1px solid #31516b;background:#14283a;color:var(--white);padding:14px;border-radius:13px;font-size:13px}
+    button.primary{background:linear-gradient(135deg,#17618c,#12314a);border-color:#5dbdeb;color:white}
+    button:active{transform:scale(.98)} button:disabled{opacity:.45}
+    .inputrow{display:flex;gap:8px}.inputrow input{min-width:0;flex:1;background:#0a131e;border:1px solid var(--line);border-radius:12px;padding:13px;color:white;font-size:14px}
+    select{width:100%;background:#0a131e;border:1px solid var(--line);border-radius:12px;padding:12px;color:white}
+    #log{font-size:13px;line-height:1.55;color:#d8e7f2;min-height:42px;white-space:pre-wrap}
+    .hint{font-size:11px;color:var(--muted);line-height:1.5;margin-top:10px}
+    footer{margin-top:auto;text-align:center;padding-top:24px;font-size:10px;color:#6f8498;letter-spacing:1px}
+  </style>
+</head>
+<body>
+<main>
+  <header><span>PERSONAL AI SYSTEM</span><span class="status">● LOCAL MODE</span></header>
+  <section class="hero">
+    <div class="orb" aria-hidden="true"><div class="core"></div></div>
+    <h1>J.A.R.V.I.S.</h1><div class="tag">JUST A RATHER VERY INTELLIGENT SYSTEM</div>
+    <div class="greeting" id="greeting">Estou pronto. Como posso ajudar?</div>
+    <div class="sub" id="state">Sistema inicial · sem ligação à IA externa</div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-title">IDIOMA DE RESPOSTA</div>
+    <select id="lang" aria-label="Idioma">
+      <option value="pt-PT">Português</option>
+      <option value="fr-FR">Français</option>
+      <option value="en-US">English</option>
+    </select>
+  </section>
+
+  <section class="panel">
+    <div class="panel-title">COMANDO DE VOZ</div>
+    <div class="controls">
+      <button class="primary" id="listen">🎙️ Falar com JARVIS</button>
+      <button id="speak">🔊 Testar voz</button>
+    </div>
+    <div class="hint">Se o reconhecimento de voz não estiver disponível no Safari, usa o microfone do teclado do iPhone para ditar no campo abaixo. A voz falada depende das vozes instaladas no iOS.</div>
+  </section>
+
+  <section class="panel">
+    <div class="panel-title">COMANDO</div>
+    <form class="inputrow" id="commandForm">
+      <input id="command" autocomplete="off" placeholder="Escreve ou dita um comando…" aria-label="Comando">
+      <button class="primary" type="submit">Enviar</button>
+    </form>
+  </section>
+
+  <section class="panel">
+    <div class="panel-title">RESPOSTA DO SISTEMA</div>
+    <div id="log">Aguardando o primeiro comando.</div>
+  </section>
+  <footer>J.A.R.V.I.S. · PROTÓTIPO 0.1 · PRIVACY FIRST</footer>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+const lang = $('lang');
+const replies = {
+  pt: {hello:'Olá. Estou operacional.',time:'Agora são ',date:'Hoje é ',help:'Posso dizer as horas, a data ou explicar os comandos disponíveis.',unknown:'Ainda estou em modo inicial. Posso dizer as horas, a data ou responder ao comando de teste.'},
+  fr: {hello:'Bonjour. Je suis opérationnel.',time:'Il est ',date:'Nous sommes le ',help:'Je peux donner l’heure, la date ou expliquer les commandes disponibles.',unknown:'Je suis encore en mode initial. Je peux donner l’heure, la date ou répondre à une commande de test.'},
+  en: {hello:'Hello. I am online.',time:'The time is ',date:'Today is ',help:'I can tell you the time, the date, or explain available commands.',unknown:'I am still in starter mode. I can tell you the time, the date, or respond to a test command.'}
+};
+function locale(){return lang.value}
+function group(){return locale().slice(0,2)}
+function say(text){
+  $('log').textContent=text;
+  if(!('speechSynthesis' in window)) return;
+  speechSynthesis.cancel();
+  const u=new SpeechSynthesisUtterance(text); u.lang=locale(); u.rate=.96; u.pitch=1;
+  const voices=speechSynthesis.getVoices();
+  const match=voices.find(v=>v.lang.toLowerCase()===locale().toLowerCase()) || voices.find(v=>v.lang.toLowerCase().startsWith(group()));
+  if(match) u.voice=match;
+  speechSynthesis.speak(u);
+}
+function handle(raw){
+  const q=raw.trim().toLowerCase(); if(!q)return;
+  const r=replies[group()] || replies.pt;
+  let answer;
+  const now=new Date();
+  if(/^(olá|ola|oi|bonjour|salut|hello|hi)\b/.test(q)) answer=r.hello;
+  else if(/(hora|horas|heure|time)/.test(q)) answer=r.time+now.toLocaleTimeString(locale(),{hour:'2-digit',minute:'2-digit'});
+  else if(/(data|dia de hoje|date|today)/.test(q)) answer=r.date+now.toLocaleDateString(locale(),{weekday:'long',year:'numeric',month:'long',day:'numeric'});
+  else if(/(ajuda|help|aide|comandos|commands)/.test(q)) answer=r.help;
+  else if(/(jarvis|teste|test)/.test(q)) answer=r.hello;
+  else answer=r.unknown;
+  $('greeting').textContent=answer;
+  say(answer);
+}
+$('commandForm').addEventListener('submit',e=>{e.preventDefault();handle($('command').value);$('command').value='';});
+$('speak').addEventListener('click',()=>say(replies[group()].hello));
+const SR=window.SpeechRecognition||window.webkitSpeechRecognition;
+if(SR){
+  const rec=new SR(); rec.continuous=false; rec.interimResults=false;
+  $('listen').addEventListener('click',()=>{rec.lang=locale();$('state').textContent='A ouvir…';rec.start();});
+  rec.onresult=e=>{const t=e.results[0][0].transcript;$('command').value=t;$('state').textContent='Comando reconhecido';handle(t);};
+  rec.onerror=()=>{$('state').textContent='Não foi possível reconhecer a voz. Usa o microfone do teclado.';};
+  rec.onend=()=>{if($('state').textContent==='A ouvir…')$('state').textContent='Pronto';};
+}else{
+  $('listen').addEventListener('click',()=>{$('state').textContent='Ditado direto indisponível neste navegador. Usa o microfone do teclado do iPhone.';$('command').focus();});
+}
+if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(()=>{});
+</script>
+</body>
+</html>
